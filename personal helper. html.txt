@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisMind AI | Lifelong Evolution Agent</title>
+    <script src="https://cloudflare.com"></script>
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #131a2c;
+            --accent-glow: #38bdf8;
+            --accent-purple: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Responsive Mirror Grid System (Identical on Desktop & Mobile) */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Sidebar Left styling */
+        .sidebar {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-glow), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .phase-indicator {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .phase-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-glow);
+            font-weight: 600;
+        }
+
+        .phase-selector {
+            width: 100%;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Workspace Right styling */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        /* Core Workspace AI Chat Engine */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 80%;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message.ai .avatar {
+            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
+        }
+
+        .message.user .avatar {
+            background: #475569;
+        }
+
+        .msg-bubble {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            line-height: 1.5;
+        }
+
+        .message.user .msg-bubble {
+            background: rgba(129, 140, 248, 0.1);
+            border-color: rgba(129, 140, 248, 0.2);
+        }
+
+        /* Input Controls bar */
+        .input-bar {
+            padding: 1.5rem 2rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Adaptive Mobile & Laptop Exact Fluid Layout Match */
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none; /* Can be toggled, but keeps core space structurally identical */
+            }
+            .message {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Adaptive Sidebar Control Panel -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-section">
+                    <i data-lucide="cpu" style="color: var(--accent-glow)"></i>
+                    <h1 class="brand-title">AegisMind AI</h1>
+                </div>
+
+                <div class="phase-indicator">
+                    <span class="phase-label">Timeline Horizon</span>
+                    <select class="phase-selector" id="timelinePhase" onchange="switchPhase()">
+                        <option value="school">Age 5-22: Parent Guidance</option>
+                        <option value="career">Age 22-26: Independent Research</option>
+                        <option value="massive">Age 26+: Massive Mind Innovation</option>
+                    </select>
+                </div>
+
+                <ul class="nav-links">
+                    <li class="nav-item active"><i data-lucide="message-square"></i> AI Co-Pilot</li>
+                    <li class="nav-item" id="navFeature1"><i data-lucide="shield-alert"></i> Parent Dashboard</li>
+                    <li class="nav-item" id="navFeature2"><i data-lucide="graduation-cap"></i> School Companion</li>
+                </ul>
+            </div>
+
+            <div class="user-profile">
+                <div class="avatar" style="background: #1e293b; width: 32px; height: 32px;">
+                    <i data-lucide="user" size="16"></i>
+                </div>
+                <div>
+                    <p style="font-size: 0.85rem; font-weight: 600;" id="userProfileName">Student Terminal</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);" id="userProfileRole">Dual Access Active</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Conversational AI & Engineering Workspace -->
+        <main class="workspace">
+            <header class="top-bar">
+                <div>
+                    <h2 id="workspaceTitle" style="font-size: 1.15rem; font-weight: 600;">Lifelong Academic & Guidance Core</h2>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="workspaceSub">Continuous multi-modal support configured for current lifecycle phase.</p>
+                </div>
+                <div class="status-pill">
+                    <i data-lucide="activity" size="14"></i>
+                    <span id="statusText">Parent Authorization Link Active</span>
+                </div>
+            </header>
+
+            <!-- Active Chat Interface -->
+            <div class="chat-area" id="chatContainer">
+                <div class="message ai">
+                    <div class="avatar"><i data-lucide="sparkles" size="18" style="color: white;"></i></div>
